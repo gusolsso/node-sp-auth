@@ -5,16 +5,15 @@ import * as http from 'http';
 import * as https from 'https';
 
 import { IAuthResolver } from './../IAuthResolver';
-import { IOnpremiseUserCredentials } from './../IAuthOptions';
 import { IAuthResponse } from './../IAuthResponse';
 import { Cache } from './../../utils/Cache';
-import * as consts from './../../Consts';
+import { IOnpremiseTmgCredentials } from './../IAuthOptions';
 
 export class OnpremiseTmgCredentials implements IAuthResolver {
-
   private static CookieCache: Cache = new Cache();
+  private TmgAuthEndpoint = 'CookieAuth.dll?Logon';
 
-  constructor(private _siteUrl: string, private _authOptions: IOnpremiseUserCredentials) { }
+  constructor(private _siteUrl: string, private _authOptions: IOnpremiseTmgCredentials) { }
 
   public getAuth(): Promise<IAuthResponse> {
 
@@ -31,7 +30,7 @@ export class OnpremiseTmgCredentials implements IAuthResolver {
       });
     }
 
-    let tmgEndPoint = `${parsedUrl.protocol}//${host}/${consts.TmgAuthEndpoint}`;
+    let tmgEndPoint = `${parsedUrl.protocol}//${host}/${this.TmgAuthEndpoint}`;
 
     let isHttps: boolean = url.parse(this._siteUrl).protocol === 'https:';
 
@@ -45,9 +44,11 @@ export class OnpremiseTmgCredentials implements IAuthResolver {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: `curl=Z2F&flags=0&forcedownlevel=0&formdir=1&trusted=0&` +
-        `username=${encodeURIComponent(this._authOptions.username)}&` +
-        `password=${encodeURIComponent(this._authOptions.password)}`,
+      body: `stage=useridandpasscode&flags=0&sessionid=%40%40SESSIONID&forcedownlevel=0&formdir=5&trusted=4&chkBsc=&` +
+        `curl=${encodeURIComponent(this._authOptions.curl)}&` +
+        `userid=${encodeURIComponent(this._authOptions.username)}&` +
+        `password=${encodeURIComponent(this._authOptions.password)}&` +
+        `passcode=${encodeURIComponent(this._authOptions.password)}`,
       agent: keepaliveAgent,
       json: false,
       simple: false,

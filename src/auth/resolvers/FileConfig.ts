@@ -8,7 +8,7 @@ import { IAuthResponse } from '../IAuthResponse';
 import { FilesHelper } from '../../utils/FilesHelper';
 import { AuthResolverFactory } from './../AuthResolverFactory';
 import { Cache } from './../../utils/Cache';
-import { IAuthOptions } from '../IAuthOptions';
+import { IOnpremiseTmgCredentials } from '../IAuthOptions';
 
 export class FileConfig implements IAuthResolver {
   private static CredsCache: Cache = new Cache();
@@ -18,7 +18,7 @@ export class FileConfig implements IAuthResolver {
   public getAuth(): Promise<IAuthResponse> {
     let fileNameTemplate = FilesHelper.resolveFileName(this._siteUrl);
 
-    let cachedCreds = FileConfig.CredsCache.get<IAuthOptions>(fileNameTemplate);
+    let cachedCreds = FileConfig.CredsCache.get<IOnpremiseTmgCredentials>(fileNameTemplate);
 
     if (cachedCreds) {
       return AuthResolverFactory.resolve(this._siteUrl, cachedCreds).getAuth();
